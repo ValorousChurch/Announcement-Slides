@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Config</title>
+    <style>
+      body {
+        background-color: #eeeeee;
+        font-family: Arial, sans-serif;
+        font-size: 14px;
+        padding: 5px;
+      }
+      .button {
+        display: block;
+        height: 40px;
+        margin: 10px auto;
+        width: 100px;
+      }
+      #btnClose {
+        background: #ffb6b9;
+      }
+      #btnSave {
+        background: #bbded6;
+      }
+      #btnFullScreen {
+        background: #faf3c9;
+      }
+    </style>
+    <script>
+      const { ipcRenderer: ipc } = require('electron');
+
+      function onLoad() {
+        const txtDisplayId = document.getElementById('txtDisplayId');
+        const cbAudio = document.getElementById('cbAudio');
+        const btnSave = document.getElementById('btnSave');
+        const btnFullScreen = document.getElementById('btnFullScreen');
+        const btnClose = document.getElementById('btnClose');
+
+        btnSave.addEventListener('click', () => {
+          const displayId = parseInt(txtDisplayId.value);
+          const audio = cbAudio.checked;
+          //console.log(`DisplayId: ${displayId}. Audio: ${audio}`);
+          ipc.send('save', displayId, audio);
+          ipc.send('showOutput');
+          btnFullScreen.disabled = false;
+        });
+
+        btnFullScreen.addEventListener('click', () => {
+          ipc.send('toggleFullscreen');
+        });
+
+        btnClose.addEventListener('click', () => {
+          ipc.send('close');
+        });
+
+        ipc.on('loadSettings', (event, settings) => {
+          txtDisplayId.value = settings.displayId;
+          cbAudio.checked = settings.audio;
+          if (Number.isInteger(settings.displayId)) {
+            ipc.send('showOutput');
+            btnFullScreen.disabled = false;
+          }
+        });
+      }
+    </script>
+  </head>
+  <body onLoad="onLoad();">
+    <table>
+      <tr>
+        <td>Display Id:</td>
+        <td>
+          <input type="number" min="0" max="100" name="displayId" id="txtDisplayId" />
+        </td>
+      </tr>
+      <tr>
+        <td>Audio:</td>
+        <td><input type="checkbox" name="audio" id="cbAudio" /></td>
+      </tr>
+    </table>
+
+    <button class="button" id="btnSave">Save</button>
+    <button class="button" id="btnFullScreen" disabled>Full Screen</button>
+    <button class="button" id="btnClose">Exit</button>
+  </body>
+</html>
