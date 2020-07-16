@@ -1,7 +1,6 @@
 const electron = require('electron'); // eslint-disable-line
 const { app, BrowserWindow, ipcMain: ipc } = electron;
 const settings = require('electron-settings');
-
 const path = require('path');
 
 let externalDisplay;
@@ -71,7 +70,11 @@ function buildOutputWindow(displayId, audio) {
   // outputWindow.openDevTools({ mode: 'detach' });
 }
 
-app.on('ready', () => {
+app.whenReady().then(() => {
+  electron.powerMonitor.on('shutdown', () => {
+    app.quit();
+  });
+
   [externalDisplay] = electron.screen
     .getAllDisplays()
     .filter(display => display.bounds.x !== 0 || display.bounds.y !== 0);
