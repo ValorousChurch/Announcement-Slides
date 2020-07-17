@@ -32,8 +32,8 @@ function buildConfigWindow() {
 
   configWindow.webContents.on('did-finish-load', () => {
     configWindow.webContents.send('loadSettings', {
-      displayId: settings.get('displayId'),
-      audio: settings.get('audio')
+      displayId: settings.getSync('displayId'),
+      audio: settings.getSync('audio')
     });
   });
   // configWindow.openDevTools({ mode: 'detach' });
@@ -74,7 +74,7 @@ function buildOutputWindow(displayId, audio) {
 app.on('ready', () => {
   [externalDisplay] = electron.screen
     .getAllDisplays()
-    .filter(display => display.bounds.x !== 0 || display.bounds.y !== 0);
+    .filter((display) => display.bounds.x !== 0 || display.bounds.y !== 0);
 
   buildConfigWindow();
 });
@@ -85,7 +85,7 @@ ipc.on('save', (event, displayId, audio) => {
 });
 
 ipc.on('showOutput', () => {
-  buildOutputWindow(settings.get('displayId'), settings.get('audio'));
+  buildOutputWindow(settings.getSync('displayId'), settings.getSync('audio'));
 });
 
 ipc.on('toggleFullscreen', () => {
